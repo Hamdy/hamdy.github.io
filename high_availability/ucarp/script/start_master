@@ -1,0 +1,5 @@
+#!/bin/bash
+
+service networking restart
+service nginx start
+ucarp --interface=eth0 --srcip=`hostname -i` --vhid=1 --pass=mypassword --addr=172.22.0.5  --downscript=/usr/share/ucarp/vip-down     --upscript=/usr/share/ucarp/vip-up

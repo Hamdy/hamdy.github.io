@@ -1,0 +1,56 @@
+services:
+  master:
+    image: primary
+    container_name: primary
+    privileged: true
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.server
+    expose:
+      - 80
+    volumes:
+      - ./iface/eth0_master:/etc/network/interfaces.d/eth0
+      - ./script/start_master:/start
+      - ./nginx/primary.html:/usr/share/nginx/html/index.html
+    entrypoint: /start
+    networks:
+      static-network:
+        ipv4_address: 172.22.0.2
+
+  backup:
+    image: backup
+    container_name: backup
+    privileged: true
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.server
+    expose:
+      - 80
+    volumes:
+      - ./iface/eth0_backup:/etc/network/interfaces.d/eth0
+      - ./script/start_backup:/start
+      - ./nginx/backup.html:/usr/share/nginx/html/index.html
+    entrypoint: /start
+    networks:
+      static-network:
+        ipv4_address: 172.22.0.3
+    depends_on:
+      - master
+
+  test:
+    image: test
+    container_name: test
+    privileged: true
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.test
+    entrypoint: sleep 50000
+    networks:
+      static-network:
+        ipv4_address: 172.22.0.4
+
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16

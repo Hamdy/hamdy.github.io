@@ -1,0 +1,6 @@
+
+# Virtual interface configuration
+auto eth0:ucarp
+iface eth0:ucarp inet static
+    address 172.22.0.5
+    netmask 255.255.0.0
