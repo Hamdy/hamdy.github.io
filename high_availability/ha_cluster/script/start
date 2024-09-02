@@ -1,0 +1,29 @@
+#!/bin/bash
+
+
+echo "hacluster:hacluster" | chpasswd
+
+service corosync start
+service pacemaker start
+service pcsd-ruby start
+service pcsd start
+
+# pcs  property set stonith-enabled=false
+
+if [[ `hostname` == 'node1.demo.in' ]]; then
+    while true; do
+        pcs cluster status  | grep -F "Online: [ node1.demo.in node2.demo.in node3.demo.in ]"
+        if [ $? -eq 0 ]; then
+            pcs host auth node1.demo.in node2.demo.in node3.demo.in -u hacluster -p hacluster
+            break
+        fi
+    done
+fi
+
+# pcs host auth node1 node2 node3 -u hacluster -p hacluster
+# pcs cluster setup  node1 node2 node3 --force
+# pcs cluster enable --all
+# pcs cluster start --all
+
+
+tail -f /var/log/pcsd/pcsd.log
